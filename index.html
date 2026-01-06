@@ -3,23 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Mode To-Do</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Dark To-Do App</title>
+    <style>
+        /* CSS DIZAYN - DOIMIY TUN REJIMI */
+        body {
+            background-color: #0f172a;
+            color: #f1f5f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #1e293b;
+            width: 90%;
+            max-width: 400px;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            text-align: center;
+            color: #38bdf8;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            background: #0f172a;
+            border: 2px solid #334155;
+            padding: 12px 15px;
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #38bdf8;
+        }
+
+        button#addBtn {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 0 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        button#addBtn:hover {
+            background: #7dd3fc;
+            transform: translateY(-2px);
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #334155;
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .delete-btn {
+            background: #f43f5e;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #fb7185;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
 
-    <div class="todo-card">
-        <h2>Tungi Vazifalar</h2>
+    <div class="container">
+        <h2>Mening Rejalarim</h2>
         
         <div class="input-group">
-            <input type="text" id="todoInput" placeholder="Nima rejangiz bor?" autocomplete="off">
+            <input type="text" id="todoInput" placeholder="Vazifa kiriting..." autocomplete="off">
             <button onclick="addTask()" id="addBtn">+</button>
         </div>
 
-        <ul id="todoList">
-            </ul>
+        <ul id="todoList"></ul>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // JAVASCRIPT - FUNKSIONALLIK VA XOTIRA
+        const input = document.getElementById("todoInput");
+        const list = document.getElementById("todoList");
+
+        // Sahifa yuklanganda saqlangan vazifalarni chaqirish
+        document.addEventListener("DOMContentLoaded", getTodos);
+
+        // Enter tugmasi bilan qo'shish
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") addTask();
+        });
+
+        function addTask() {
+            const taskValue = input.value.trim();
+            if (taskValue === "") return;
+
+            // Ekranga chiqarish
+            renderTodo(taskValue);
+
+            // Xotiraga saqlash
+            saveLocalTodos(taskValue);
+
+            input.value = "";
+        }
+
+        function renderTodo(text) {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <span>${text}</span>
+                <button class="delete-btn" onclick="removeTask(this)">O'chirish</button>
+            `;
+            list.appendChild(li);
+        }
+
+        function removeTask(btn) {
+            const li = btn.parentElement;
+            const text = li.querySelector("span").innerText;
+            
+            // Xotiradan o'chirish
+            removeLocalTodo(text);
+            // Ekrandan o'chirish
+            li.remove();
+        }
+
+        // --- LOCAL STORAGE (SAQLASH) FUNKSIYALARI ---
+
+        function saveLocalTodos(todo) {
+            let todos = localStorage.getItem("todos") ? JSON.parse(localStorage.getItem("todos")) : [];
+            todos.push(todo);
+            localStorage.setItem("todos", JSON.stringify(todos));
+        }
+
+        function getTodos() {
+            let todos = localStorage.getItem("todos") ? JSON.parse(localStorage.getItem("todos")) : [];
+            todos.forEach(todo => renderTodo(todo));
+        }
+
+        function removeLocalTodo(todoText) {
+            let todos = JSON.parse(localStorage.getItem("todos"));
+            const filteredTodos = todos.filter(t => t !== todoText);
+            localStorage.setItem("todos", JSON.stringify(filteredTodos));
+        }
+    </script>
 </body>
 </html>
